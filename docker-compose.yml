@@ -1,0 +1,9 @@
+services:
+  web:
+    build: ./app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app  # Esto sincroniza tu carpeta local con la del contenedor
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1 # Útil para Boto3
