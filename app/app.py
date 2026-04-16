@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Configuración de clientes de AWS
-ec2 = boto3.client('ec2', region_name='us-east-1')
+ec2 = boto3.client('ec2', region_name='us-east-1d')
 s3 = boto3.client('s3', region_name='us-east-1')
 
 @app.route("/")
