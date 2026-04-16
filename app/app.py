@@ -18,7 +18,7 @@ def crear_instancia():
     try:
         # Lógica para lanzar una instancia nueva
         instance = ec2.run_instances(
-            ImageId='ami-0c55b159cbfafe1f0', # AMI de Amazon Linux
+            ImageId='ami-098e39bafa7e7303d', # AMI de Amazon Linux
             InstanceType='t2.micro',
             MinCount=1,
             MaxCount=1
