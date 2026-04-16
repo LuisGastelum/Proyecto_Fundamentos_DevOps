@@ -3,56 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudOps Dashboard</title>
+    <title>CloudOps Automation Center</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1c2c; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: #25283d; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 80%; max-width: 800px; }
-        h1 { border-bottom: 2px solid #4e54c8; padding-bottom: 10px; margin-bottom: 20px; }
-        .botones { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        button { background-color: #4e54c8; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #6c63ff; transform: translateY(-2px); }
-        .terminal { background-color: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; padding: 15px; border-radius: 6px; height: 200px; overflow-y: auto; border: 1px solid #333; line-height: 1.5; }
-        .error { color: #ff5555; }
-        .success { color: #55ff55; }
-        .info { color: #55ffff; }
+        :root { --primary: #4e54c8; --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #00ff88; --danger: #ff4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        
+        .card { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); border: 1px solid #333; display: flex; flex-direction: column; transition: 0.3s; }
+        .card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        
+        .card h2 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem; }
+        .card p { font-size: 0.85rem; color: #aaa; margin-bottom: 15px; flex-grow: 1; }
+        
+        .btn-action { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .btn-action:hover { background: #6c63ff; }
+
+        .mini-terminal { background: #000; color: var(--accent); font-family: 'Courier New', monospace; padding: 10px; border-radius: 5px; font-size: 0.8rem; min-height: 80px; border: 1px solid #222; white-space: pre-wrap; }
+        
+        /* Estilos de Alarma */
+        .status-ok { color: var(--accent); font-weight: bold; }
+        .status-alarm { color: var(--danger); font-weight: bold; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Panel de Control AWS</h1>
-        <p>Selecciona una acción para desplegar infraestructura o registrar eventos:</p>
-        
-        <div class="botones">
-            <button onclick="ejecutar('/lanzar_ec2')">Lanzar Instancia EC2</button>
-            <button onclick="ejecutar('/respaldar_s3')">Respaldo S3</button>
-            <button onclick="ejecutar('/registrar_log')">Log DynamoDB</button>
+
+    <div class="header">
+        <h1>CloudOps Admin Dashboard</h1>
+        <p>Monitoreo de Infraestructura en Tiempo Real</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2>EC2 Compute</h2>
+            <p>Lanza una instancia t2.micro con Amazon Linux 2023.</p>
+            <button class="btn-action" onclick="ejecutar('/lanzar_ec2', 'term-ec2')">Ejecutar Acción</button>
+            <div class="mini-terminal" id="term-ec2">> Sistema listo.</div>
         </div>
 
-        <div class="terminal" id="terminal">
-            > Esperando órdenes...
+        <div class="card">
+            <h2>S3 Storage</h2>
+            <p>Sincroniza un reporte de diagnóstico con el Bucket S3.</p>
+            <button class="btn-action" onclick="ejecutar('/respaldar_s3', 'term-s3')">Ejecutar Acción</button>
+            <div class="mini-terminal" id="term-s3">> Esperando orden...</div>
+        </div>
+
+        <div class="card">
+            <h2>DynamoDB Logs</h2>
+            <p>Registra un evento de auditoría en la tabla NoSQL.</p>
+            <button class="btn-action" onclick="ejecutar('/registrar_log', 'term-dyn')">Ejecutar Acción</button>
+            <div class="mini-terminal" id="term-dyn">> Sin registros.</div>
+        </div>
+
+        <div class="card" id="card-alarma">
+            <h2>CloudWatch Alarm</h2>
+            <p>Estado de la alarma: <strong>Alarma_Exceso_EC2</strong></p>
+            <button class="btn-action" onclick="consultarAlarma()">Consultar Estado</button>
+            <div class="mini-terminal" id="term-alarma">> Pendiente de consulta...</div>
         </div>
     </div>
 
     <script>
-        function escribir(texto, clase = '') {
-            const term = document.getElementById('terminal');
-            term.innerHTML += `<br><span class="${clase}">> ${texto}</span>`;
-            term.scrollTop = term.scrollHeight;
+        async function ejecutar(ruta, termId) {
+            const term = document.getElementById(termId);
+            term.innerHTML = "> Enviando comando a AWS...";
+            try {
+                const res = await fetch(ruta);
+                const data = await res.json();
+                term.innerHTML = `> ${data.mensaje}`;
+            } catch (e) { term.innerHTML = "> Error de conexión."; }
         }
 
-        async function ejecutar(ruta) {
-            escribir("Iniciando operación en AWS...", "info");
+        async function consultarAlarma() {
+            const term = document.getElementById('term-alarma');
+            const card = document.getElementById('card-alarma');
+            term.innerHTML = "> Obteniendo métricas...";
             try {
-                const response = await fetch(ruta);
-                const data = await response.json();
-                if (response.ok) {
-                    escribir(data.mensaje, "success");
-                } else {
-                    escribir(data.mensaje, "error");
-                }
-            } catch (error) {
-                escribir("Error de conexión con el servidor", "error");
-            }
+                const res = await fetch('/consultar_alarma');
+                const data = await res.json();
+                
+                const clase = data.estado === 'ALARM' ? 'status-alarm' : 'status-ok';
+                card.style.borderColor = data.estado === 'ALARM' ? 'var(--danger)' : 'var(--accent)';
+                
+                term.innerHTML = `ESTADO: <span class="${clase}">${data.estado}</span>\n\nDETALLE:\n${data.razon}`;
+            } catch (e) { term.innerHTML = "> Error al leer la alarma."; }
         }
     </script>
 </body>
