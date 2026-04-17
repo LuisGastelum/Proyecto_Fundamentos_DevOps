@@ -3,92 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudOps Automation Center</title>
+    <title>Control de Operaciones Cloud - AWS</title>
     <style>
-        :root { --primary: #4e54c8; --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #00ff88; --danger: #ff4444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        :root { --primary: #4e54c8; --bg: #0d0d0d; --card: #1a1a1a; --text: #f0f0f0; --accent: #00ff88; --danger: #ff4444; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); padding: 40px; margin: 0; }
+        .header { text-align: center; margin-bottom: 50px; border-bottom: 2px solid var(--primary); padding-bottom: 20px; }
         
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); 
+            gap: 30px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
         
-        .card { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); border: 1px solid #333; display: flex; flex-direction: column; transition: 0.3s; }
-        .card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .card { 
+            background: var(--card); 
+            border-radius: 15px; 
+            padding: 25px; 
+            border: 1px solid #2a2a2a; 
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         
-        .card h2 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem; }
-        .card p { font-size: 0.85rem; color: #aaa; margin-bottom: 15px; flex-grow: 1; }
+        .card h2 { font-size: 1.3rem; margin: 0 0 10px 0; color: var(--primary); }
+        .card p { font-size: 0.9rem; color: #bbb; line-height: 1.4; margin-bottom: 20px; flex-grow: 1; }
         
-        .btn-action { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
-        .btn-action:hover { background: #6c63ff; }
+        .btn { 
+            width: 100%; background: var(--primary); color: white; border: none; 
+            padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; 
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn:hover { background: #6c63ff; filter: brightness(1.1); }
 
-        .mini-terminal { background: #000; color: var(--accent); font-family: 'Courier New', monospace; padding: 10px; border-radius: 5px; font-size: 0.8rem; min-height: 80px; border: 1px solid #222; white-space: pre-wrap; }
+        .console { 
+            background: #000; color: var(--accent); font-family: 'Consolas', monospace; 
+            padding: 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 15px;
+            min-height: 90px; border: 1px solid #222; white-space: pre-wrap;
+        }
         
-        /* Estilos de Alarma */
         .status-ok { color: var(--accent); font-weight: bold; }
-        .status-alarm { color: var(--danger); font-weight: bold; animation: blink 1.5s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .status-alarm { color: var(--danger); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>CloudOps Admin Dashboard</h1>
-        <p>Monitoreo de Infraestructura en Tiempo Real</p>
+        <h1>Centro de Automatización y Monitoreo AWS</h1>
+        <p>Gestión de infraestructura bajo demanda con auditoría en tiempo real</p>
     </div>
 
     <div class="dashboard-grid">
         <div class="card">
-            <h2>EC2 Compute</h2>
-            <p>Lanza una instancia t2.micro con Amazon Linux 2023.</p>
-            <button class="btn-action" onclick="ejecutar('/lanzar_ec2', 'term-ec2')">Ejecutar Acción</button>
-            <div class="mini-terminal" id="term-ec2">> Sistema listo.</div>
+            <h2>Lanzar Instancia</h2>
+            <p>Lanza una nueva instancia EC2 t2.micro. Esta acción simula el escalado vertical de la aplicación ante demanda.</p>
+            <button class="btn" onclick="ejecutar('/lanzar_ec2', 'c-ec2')">Lanzar EC2</button>
+            <div class="console" id="c-ec2">> Sistema listo...</div>
         </div>
 
         <div class="card">
-            <h2>S3 Storage</h2>
-            <p>Sincroniza un reporte de diagnóstico con el Bucket S3.</p>
-            <button class="btn-action" onclick="ejecutar('/respaldar_s3', 'term-s3')">Ejecutar Acción</button>
-            <div class="mini-terminal" id="term-s3">> Esperando orden...</div>
+            <h2>Sincronización S3</h2>
+            <p>Genera un reporte de diagnóstico y lo sube al bucket de almacenamiento persistente para respaldo externo.</p>
+            <button class="btn" onclick="ejecutar('/respaldar_s3', 'c-s3')">Subir Backup</button>
+            <div class="console" id="c-s3">> Sin actividad...</div>
         </div>
 
         <div class="card">
-            <h2>DynamoDB Logs</h2>
-            <p>Registra un evento de auditoría en la tabla NoSQL.</p>
-            <button class="btn-action" onclick="ejecutar('/registrar_log', 'term-dyn')">Ejecutar Acción</button>
-            <div class="mini-terminal" id="term-dyn">> Sin registros.</div>
+            <h2>Escritura NoSQL</h2>
+            <p>Registra un evento de auditoría en DynamoDB. Permite llevar un control histórico de quién opera el sistema.</p>
+            <button class="btn" onclick="ejecutar('/registrar_log', 'c-dyn')">Registrar Log</button>
+            <div class="console" id="c-dyn">> Esperando datos...</div>
         </div>
 
-        <div class="card" id="card-alarma">
-            <h2>CloudWatch Alarm</h2>
-            <p>Estado de la alarma: <strong>Alarma_Exceso_EC2</strong></p>
-            <button class="btn-action" onclick="consultarAlarma()">Consultar Estado</button>
-            <div class="mini-terminal" id="term-alarma">> Pendiente de consulta...</div>
+        <div class="card" id="card-a-ec2">
+            <h2>Monitor: Alarma EC2</h2>
+            <p>Consulta CloudWatch para verificar si se ha excedido el límite de creación de instancias (Umbral: >2).</p>
+            <button class="btn" onclick="consultarAlarma('Alarma_Actividad_EC2', 't-a-ec2', 'card-a-ec2')">Verificar Estado</button>
+            <div class="console" id="t-a-ec2">> Pendiente de consulta...</div>
+        </div>
+
+        <div class="card" id="card-a-s3">
+            <h2>Monitor: Alarma S3</h2>
+            <p>Monitorea la frecuencia de subida de archivos para detectar anomalías o tráfico inusual hacia el bucket.</p>
+            <button class="btn" onclick="consultarAlarma('Alarma_Uso_S3', 't-a-s3', 'card-a-s3')">Verificar Estado</button>
+            <div class="console" id="t-a-s3">> Pendiente de consulta...</div>
+        </div>
+
+        <div class="card" id="card-a-dyn">
+            <h2>Monitor: Alarma Dynamo</h2>
+            <p>Vigila la carga de escritura en la tabla de registros. Avisa si hay un pico excesivo de operaciones NoSQL.</p>
+            <button class="btn" onclick="consultarAlarma('Alarma_Uso_Dynamo', 't-a-dyn', 'card-a-dyn')">Verificar Estado</button>
+            <div class="console" id="t-a-dyn">> Pendiente de consulta...</div>
         </div>
     </div>
 
     <script>
-        async function ejecutar(ruta, termId) {
-            const term = document.getElementById(termId);
-            term.innerHTML = "> Enviando comando a AWS...";
+        async function ejecutar(ruta, id) {
+            const el = document.getElementById(id);
+            el.innerHTML = "> Conectando con SDK de AWS...";
             try {
                 const res = await fetch(ruta);
                 const data = await res.json();
-                term.innerHTML = `> ${data.mensaje}`;
-            } catch (e) { term.innerHTML = "> Error de conexión."; }
+                el.innerHTML = `> RESPUESTA: ${data.mensaje}`;
+            } catch (e) { el.innerHTML = "> ERROR: No se pudo conectar con el servidor."; }
         }
 
-        async function consultarAlarma() {
-            const term = document.getElementById('term-alarma');
-            const card = document.getElementById('card-alarma');
-            term.innerHTML = "> Obteniendo métricas...";
+        async function consultarAlarma(nombre, termId, cardId) {
+            const term = document.getElementById(termId);
+            const card = document.getElementById(cardId);
+            term.innerHTML = "> Consultando CloudWatch Alarms...";
             try {
-                const res = await fetch('/consultar_alarma');
+                const res = await fetch(`/consultar_alarma/${nombre}`);
                 const data = await res.json();
-                
                 const clase = data.estado === 'ALARM' ? 'status-alarm' : 'status-ok';
                 card.style.borderColor = data.estado === 'ALARM' ? 'var(--danger)' : 'var(--accent)';
-                
                 term.innerHTML = `ESTADO: <span class="${clase}">${data.estado}</span>\n\nDETALLE:\n${data.razon}`;
-            } catch (e) { term.innerHTML = "> Error al leer la alarma."; }
+            } catch (e) { term.innerHTML = "> ERROR: No se pudo obtener la métrica."; }
         }
     </script>
 </body>
